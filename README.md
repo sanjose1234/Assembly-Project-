@@ -12,3 +12,5 @@ For example,
 
 This program is to demonstrate my capabilities and familiarity
 with the Assembly language and its syntax.
+The assembly-Project.txt file that is attatched to this depository 
+has in-line comments to explain the logic of the program.
