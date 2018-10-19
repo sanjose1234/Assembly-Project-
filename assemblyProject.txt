@@ -1,0 +1,152 @@
+/read the tens digit
+CIF1,	SKI		/skip next instruction if input flag is set
+	BUN CIF1 	/loop until input flag is set
+	INP      	/read a character from the input reg
+	ADD NZR  	/add -48 Decimal to convert to decimal(subtract 48 decimal)
+	STA MSD   	/store to MSD
+	CLA
+	LDA MSD
+    	ADD MSD   	/1; to get the actual tens digit, add it by itself 9 times
+	ADD MSD		/2
+	ADD MSD		/3
+	ADD MSD		/4
+	ADD MSD		/5
+	ADD MSD		/6
+	ADD MSD		/7
+	ADD MSD		/8
+	ADD MSD		/9
+	STA MSD 	/store to MSD; FIXME???
+/read the ones digit
+CIF2,	SKI     
+	BUN CIF2
+	INP		/input user input
+	ADD NZR		/convert to decimal 
+	STA LSD
+	CLA		/clear accumulator
+/add loop
+	LDA MSD		/load the MSD
+	ADD LSD		/add LSD to MSD
+	STA XYZ
+	STA CO1		/store the result to NUM variable
+	CLA		/clear the accumulator
+/SUM ROUTINE
+LOP1,	CLA
+	/LDA NUM		/ load the result 
+	LDA CO1		/ the 1st hundreds counter
+	STA CO2 	/ and the 2nd
+	CLA		/ clear
+	BSA LOP2	/ loop to square and sum numbers 
+	CLA		/ clear
+	LDA CO1
+	ADD DCR		/ decrement first counter
+	STA CO2
+	STA CO1
+	STA XYZ
+	SZA		/ skip next instruction if first counter is 0
+	BUN LOP1	/ restart loop (next iteration)
+/ output digit in hundreds place
+LOP3,	CLA		
+	LDA FIN		/ load the final result
+	ADD SNH		/ subtract 100
+	STA FIN		/ store it in the new result
+	CLA
+	LDA CO3		/ load the counter for the hundreds place
+	ADD INC		/ increment it
+	STA CO3
+	CLA
+	LDA FIN
+	SNA		/ skip next instruction if the result is negative
+	BUN LOP3	/ next iteration
+/hundred loop exited
+	ADD APH		/ add 100 to make the result positive again		
+	STA FIN
+	CLA
+	LDA CO3		/ load the hundreds counter
+	ADD DCR		/ decrement the counter for the hundreds place
+	STA CO3
+	ADD PZR		/ convert back to ASCII
+	OUT		/ output the hundreds digit
+/ output digit in tens place
+LOP4,	CLA
+	LDA FIN
+	ADD SNT
+	STA FIN
+	CLA
+	LDA CO4
+	ADD INC
+	STA CO4
+	CLA
+	LDA FIN
+	SNA
+	BUN LOP4
+/tens loop exited
+	ADD APT
+	STA FIN
+	CLA
+	LDA CO4
+	ADD DCR
+	STA CO4
+	ADD PZR
+	OUT
+/ output digit in ones place
+LOP5,	CLA
+	LDA FIN
+	ADD DCR
+	STA FIN
+	CLA 
+	LDA CO5
+	ADD INC
+	STA CO5
+	CLA
+	LDA FIN
+	SNA
+	BUN CO5
+/ones loop exited
+	CLA
+	LDA FIN
+	ADD DCR
+	ADD PZR
+	OUT
+	HLT
+	STA FIN
+	CLA
+	LDA CO5
+	ADD DCR
+	STA CO5
+	ADD PZR
+	OUT
+	HLT
+/declare variables
+MSD, DEC 0
+LSD, DEC 0
+CO1, DEC 0	/counter 1 variable
+CO2, DEC 0 	/counter 2 variable
+CO3, DEC 0	/counts the amount of times 100 is subtracted 
+CO4, DEC 0 	/counts the amount of times 10 is subtracted
+CO5, DEC 0
+XYZ, DEC 0	/temp variable
+SNT, DEC -10
+APT, DEC 10
+SNH, DEC -100
+APH, DEC 100
+INC, DEC 1	/increment by one
+DCR, DEC -1	/decrement by one
+FIN, DEC 0 	/running sum; will eventually hold the final sum of all the squares
+NUM, DEC 0	/the user's input
+NZR, DEC -48	/this variable is used to subract by 48 to convert to decimal 
+PZR, DEC 48	/this variable is used to add by 48 to convert to ASCII
+/ (i * i) loop sub-routine 
+LOP2,	CLA
+	LDA FIN		/load running sum (initially 0)
+	ADD CO1		/add the first counter
+	STA FIN		/store that new result
+	CLA		/clear accumulator
+	LDA CO2		/load the second counter 
+	ADD DCR		/decrement second counter
+	STA CO2
+	CLA
+	LDA CO2
+	SZA		/skip next if second counter is 0
+	BUN LOP2	/restart loop (next iteration)
+	BUN LOP2 I	/exit loop to where it was called
+END
